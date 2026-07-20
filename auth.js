@@ -1,4 +1,3 @@
-/* --- MODULE XỬ LÝ XÁC THỰC BẢO MẬT --- */
 document.addEventListener("DOMContentLoaded", () => {
     const authBtn = document.getElementById("auth-btn");
     const passwordInput = document.getElementById("password");
@@ -7,29 +6,30 @@ document.addEventListener("DOMContentLoaded", () => {
     const contentBox = document.getElementById("content");
 
     function executeLogin() {
-        const enteredValue = passwordInput.value.trim();
+        const enteredPassword = passwordInput.value.trim();
         
-        // Kiểm tra khớp mật khẩu từ file config.js
-        if (enteredValue === SYSTEM_CONFIG.accessKey) {
-            // Hiệu ứng ẩn khung mật khẩu và hiện nội dung
+        // Kiểm tra xem đã tích chọn đám mây cam Cloudflare chưa
+        const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]');
+        if (!turnstileResponse || turnstileResponse.value.trim() === "") {
+            errorMsg.textContent = "LỖI: Vui lòng xác thực đám mây cam trước!";
+            return;
+        }
+
+        // Kiểm tra mật khẩu
+        if (enteredPassword === SYSTEM_CONFIG.accessKey) {
             authBox.style.opacity = "0";
             authBox.style.transition = "opacity 0.4s ease";
             
             setTimeout(() => {
                 authBox.classList.add("hidden");
                 contentBox.classList.remove("hidden");
-                // Kích hoạt render dữ liệu sau khi đăng nhập thành công
                 if (typeof window.initApp === "function") {
                     window.initApp();
                 }
             }, 400);
         } else {
-            errorMsg.textContent = "ACCESS DENIED: Mã khóa không chính xác!";
+            errorMsg.textContent = "TRUY CẬP BỊ TỪ CHỐI: Sai mật khẩu!";
             passwordInput.style.borderColor = "var(--danger-color)";
-            
-            // Hiệu ứng rung lắc khung nhập khi sai mật khẩu
-            authBox.classList.add("shake");
-            setTimeout(() => authBox.classList.remove("shake"), 300);
         }
     }
 
