@@ -103,9 +103,8 @@ window.verifyUserCode = function(index) {
     const userTyped = inputField.value.trim();
 
     if (userTyped === activeCodes[index]) {
-        // Dừng đếm ngược vì đã nhập đúng
         clearInterval(activeTimers[index]);
-        codeArea.textContent = "✅ Xác minh thành công! Bạn có thể sử dụng nội dung.";
+        codeArea.textContent = "✅ Xác minh thành công! Mã code chính xác.";
         codeArea.classList.add("success-verified");
         timerText.textContent = "Trạng thái: Đã hoàn tất xác thực";
         inputField.disabled = true;
