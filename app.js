@@ -12,7 +12,7 @@ window.initApp = function() {
 
         if (sec.btnAction === "copy") {
             actionButtonHTML = `
-                <button class="click-btn" id="click-btn-${index}" onclick="triggerGetCode(${index})">CLICK HERE (Lấy mã xác minh)</button>
+                <button class="click-btn" id="click-btn-${index}" onclick="triggerGetCode(${index})">CLICK HERE (Lấy mã ngẫu nhiên)</button>
                 
                 <div id="ver-box-${index}" class="verification-box">
                     <div id="code-area-${index}" class="code-display-area">Mã: Đang tạo...</div>
@@ -23,9 +23,8 @@ window.initApp = function() {
                     </div>
                 </div>
                 
-                <!-- Khu vực Script sau khi giải mã thành công -->
-                <div id="success-script-box-${index}" style="display: none; margin-top: 15px; animation: fadeInSystem 0.5s ease;">
-                    <div style="font-size: 13px; color: var(--primary-color); margin-bottom: 5px; font-weight: bold;">✅ GIẢI MÃ THÀNH CÔNG - LUAU SCRIPT:</div>
+                <div id="success-script-box-${index}" style="display: none; margin-top: 15px;">
+                    <div style="font-size: 13px; color: var(--primary-color); margin-bottom: 5px; font-weight: bold;">✅ MÃ XÁC MINH HỢP LỆ:</div>
                     <pre><code id="real-code-${index}">${escapeHtml(sec.codeSnippet)}</code></pre>
                     <button class="click-btn" style="background: var(--primary-color); color: var(--bg-color);" onclick="copyScriptCode(${index})">COPY SCRIPT VÀO BỘ NHỚ</button>
                 </div>
@@ -40,7 +39,7 @@ window.initApp = function() {
             <h3>${sec.title}</h3>
             <p>${sec.description}</p>
             <div id="preview-blur-${index}">
-                <pre><code>-- [NỘI DUNG ĐÃ BỊ KHÓA BẢO MẬT] --\nlocal status = "Yêu cầu xác minh để xem code";</code></pre>
+                <pre><code>-- [NỘI DUNG ĐÃ BỊ KHÓA BẢO MẬT] --\nlocal status = "Nhập mã để mở khóa nội dung này";</code></pre>
             </div>
             ${actionButtonHTML}
         `;
@@ -48,7 +47,6 @@ window.initApp = function() {
     });
 };
 
-// Hàm chống lỗi hiển thị ký tự đặc biệt trong code
 function escapeHtml(text) {
     return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
@@ -66,7 +64,7 @@ window.triggerGetCode = function(index) {
     if (!box) return;
 
     box.style.display = "block";
-    clickBtn.style.display = "none"; // Ẩn nút đi sau khi đã bấm để giao diện gọn gàng
+    clickBtn.style.display = "none";
     inputField.value = "";
     inputField.disabled = false;
     codeArea.classList.remove("success-verified");
@@ -118,38 +116,34 @@ window.verifyUserCode = function(index) {
     const userTyped = inputField.value.trim();
 
     if (userTyped === activeCodes[index]) {
-        // Dừng đếm ngược
         clearInterval(activeTimers[index]);
 
-        // Đổi dòng thời gian sang màu xanh ngọc cực chất
-        timerText.textContent = "✨ XÁC THỰC THÀNH CÔNG - HỆ THỐNG ĐÃ MỞ KHÓA";
+        timerText.textContent = "✨ ĐÃ XÁC THỰC THÀNH CÔNG";
         timerText.style.color = "var(--primary-color)";
         timerText.style.fontWeight = "bold";
         
-        codeArea.textContent = "✅ Mã chính xác!";
+        codeArea.textContent = "✅ Chính xác!";
         codeArea.classList.add("success-verified");
         inputField.disabled = true;
 
-        // Hiệu ứng mượt mà: Ẩn khung nhập mã, ẩn khung khóa mờ, hiện thẳng khung Script Luau xịn ra giữa
         setTimeout(() => {
             verBox.style.display = "none";
             if (blurPreview) blurPreview.style.display = "none";
             if (successBox) successBox.style.display = "block";
-        }, 600);
+        }, 400);
 
     } else {
-        alert("Sai mã xác minh! Vui lòng kiểm tra lại ký tự.");
+        alert("Sai mã xác minh! Vui lòng kiểm tra lại.");
     }
 };
 
-// Hàm copy code trực tiếp vào bộ nhớ tạm
 window.copyScriptCode = function(index) {
     const codeElement = document.getElementById(`real-code-${index}`);
     if (!codeElement) return;
 
     navigator.clipboard.writeText(codeElement.textContent).then(() => {
-        alert("📋 Đã copy toàn bộ mã Luau vào bộ nhớ tạm thành công!");
+        alert("📋 Đã copy code thành công!");
     }).catch(err => {
-        alert("Lỗi khi copy: " + err);
+        alert("Lỗi copy: " + err);
     });
 };
