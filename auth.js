@@ -5,18 +5,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const authBox = document.getElementById("auth-box");
     const contentBox = document.getElementById("content");
 
+    // Kiểm tra xem trước đó người dùng đã đăng nhập thành công chưa
+    if (sessionStorage.getItem("isLoggedIn") === "true") {
+        authBox.classList.add("hidden");
+        contentBox.classList.remove("hidden");
+        if (typeof window.initApp === "function") {
+            window.initApp();
+        }
+        return; // Dừng lại, không bắt hiện màn hình đăng nhập nữa
+    }
+
     function executeLogin() {
         const enteredPassword = passwordInput.value.trim();
         
-        // Kiểm tra xem đã tích chọn đám mây cam Cloudflare chưa
         const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]');
         if (!turnstileResponse || turnstileResponse.value.trim() === "") {
             errorMsg.textContent = "LỖI: Vui lòng xác thực đám mây cam trước!";
             return;
         }
 
-        // Kiểm tra mật khẩu
         if (enteredPassword === SYSTEM_CONFIG.accessKey) {
+            // Lưu lại trạng thái đã đăng nhập vào bộ nhớ phiên làm việc
+            sessionStorage.setItem("isLoggedIn", "true");
+
             authBox.style.opacity = "0";
             authBox.style.transition = "opacity 0.4s ease";
             
