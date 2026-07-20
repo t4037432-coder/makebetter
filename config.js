@@ -4,15 +4,15 @@ const SYSTEM_CONFIG = {
     sections: [
         {
             title: "1. New (Dành cho người mới)",
-            description: "Các đoạn code Luau cơ bản nhất để làm quen với Roblox Studio.",
+            description: "Xem script cơ bản bên dưới. Bấm nút để xác minh mã và chuyển hướng sang web tạm thời.",
             codeSnippet: 'print("Hello Roblox!")\nlocal score = 10\nprint("Score is: " .. score)',
-            btnAction: "copy"
+            btnAction: "redirect"
         },
         {
-            title: "2. Know Luau? Join Now",
-            description: "Thử thách tư duy logic và các hàm xử lý trung bình.",
-            codeSnippet: 'local player = game.Players.LocalPlayer\nprint("Current user: " .. player.Name)',
-            btnAction: "copy"
+            title: "2. Know Luau? Join Now (Khối Cầu Vồng Tử Vong)",
+            description: "Script tạo khối vuông lượn sóng bay sắc cầu vồng, chạm vào là người chơi chết ngay lập tức.",
+            codeSnippet: 'local part = Instance.new("Part")\npart.Size = Vector3.new(5, 5, 5)\npart.Anchored = true\npart.Parent = workspace\n\n-- Hiệu ứng cầu vồng & chạm vào chết\ntask.spawn(function()\n    while true do\n        part.Color = Color3.fromHSV(tick() % 5 / 5, 1, 1)\n        for _, child in ipairs(workspace:GetChildren()) do\n            if child:IsA("Model") and child:FindFirstChild("Humanoid") then\n                local hrp = child:FindFirstChild("HumanoidRootPart")\n                if hrp and (hrp.Position - part.Position).Magnitude < 4 then\n                    child.Humanoid.Health = 0\n                end\n            end\n        end\n        task.wait(0.1)\n    end\nend)',
+            btnAction: "redirect"
         },
         {
             title: "3. Năng Cao (Full Module)",
