@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác Thực Key Thành Công - Luau Hub</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #121826;
+            --primary-color: #00ffcc;
+            --text-color: #ffffff;
+            --danger-color: #ff3366;
+            --border-color: #1f293d;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .key-box {
+            background: #060911;
+            border: 1px dashed var(--primary-color);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 15px;
+            color: var(--primary-color);
+            word-break: break-all;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .expiry-text {
+            color: var(--danger-color);
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .copy-btn {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            font-size: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+        }
+
+        .copy-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🎉 VƯỢT LINK THÀNH CÔNG!</h2>
+        <p>Key 20 ký tự độc quyền của bạn (Có hiệu lực trong vòng <strong>7 ngày</strong>):</p>
+        
+        <div class="key-box" id="generated-key">Đang tạo key...</div>
+        <div class="expiry-text" id="expiry-info">Thời hạn: Đang tính toán...</div>
+        
+        <button class="copy-btn" onclick="copyKey()">COPY KEY VÀO BỘ NHỚ</button>
+    </div>
+
+    <script>
+        function generateKeyWithExpiry() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            let result = "luaurb_";
+            for (let i = 0; i < 13; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        window.onload = function() {
+            const keyBox = document.getElementById("generated-key");
+            const expiryInfo = document.getElementById("expiry-info");
+
+            let savedData = localStorage.getItem("luau_key_data");
+            let keyObj;
+
+            const now = new Date().getTime();
+            const sevenDaysMs = 7 * 24 * 60 * 60 * 1000; // 7 ngày tính bằng mili-giây
+
+            if (savedData) {
+                keyObj = JSON.parse(savedData);
+                // Nếu quá 7 ngày kể từ lúc tạo, cấp key mới
+                if (now > keyObj.expiresAt) {
+                    keyObj = createNewKey(now, sevenDaysMs);
+                }
+            } else {
+                keyObj = createNewKey(now, sevenDaysMs);
+            }
+
+            keyBox.textContent = keyObj.key;
+            
+            // Tính số ngày/giờ còn lại hiển thị cho người dùng biết
+            let timeLeft = keyObj.expiresAt - now;
+            let daysLeft = Math.ceil(timeLeft / (1000 * 60 * 60 * 24));
+            expiryInfo.textContent = `⏰ Thời hạn sử dụng: Còn lại ${daysLeft} ngày (Hết hạn sau 7 ngày kể từ lúc tạo)`;
+        };
+
+        function createNewKey(now, duration) {
+            const newKey = generateKeyWithExpiry();
+            const data = {
+                key: newKey,
+                createdAt: now,
+                expiresAt: now + duration
+            };
+            localStorage.setItem("luau_key_data", JSON.stringify(data));
+            return data;
+        }
+
+        function copyKey() {
+            const keyText = document.getElementById("generated-key").textContent;
+            navigator.clipboard.writeText(keyText).then(() => {
+                alert("📋 Đã copy Key 7 ngày thành công! Đem về dán vào Hub nhé.");
+            }).catch(err => {
+                alert("Lỗi copy: " + err);
+            });
+        }
+    </script>
+</body>
+</html>
