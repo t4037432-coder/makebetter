@@ -51,13 +51,11 @@ window.triggerGetCode = function(index) {
     
     if (!box) return;
 
-    // Hiển thị khung xác minh
     box.style.display = "block";
     inputField.value = "";
     inputField.disabled = false;
     codeArea.classList.remove("success-verified");
 
-    // Tạo mã ngẫu nhiên mới khác nhau
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     let generatedCode = "LUAU-";
     for (let i = 0; i < 8; i++) {
@@ -67,12 +65,10 @@ window.triggerGetCode = function(index) {
     activeCodes[index] = generatedCode;
     codeArea.textContent = `Mã xác minh của bạn: ${generatedCode}`;
 
-    // Xóa bộ đếm cũ nếu có
     if (activeTimers[index]) {
         clearInterval(activeTimers[index]);
     }
 
-    // Thiết lập thời gian sống đúng 60 giây (1 phút)
     let timeLeft = 60;
     timerText.textContent = `Hết hạn sau: ${timeLeft} giây`;
 
@@ -82,7 +78,7 @@ window.triggerGetCode = function(index) {
 
         if (timeLeft <= 0) {
             clearInterval(activeTimers[index]);
-            activeCodes[index] = null; // Hủy hiệu lực mã
+            activeCodes[index] = null;
             codeArea.textContent = "⚠️ Mã đã hết hạn sau 1 phút! Vui lòng bấm lấy mã mới.";
             timerText.textContent = "Trạng thái: Đã vô hiệu hóa";
             inputField.disabled = true;
@@ -104,10 +100,16 @@ window.verifyUserCode = function(index) {
 
     if (userTyped === activeCodes[index]) {
         clearInterval(activeTimers[index]);
-        codeArea.textContent = "✅ Xác minh thành công! Mã code chính xác.";
+        codeArea.textContent = "✅ Xác minh thành công! Đang chuyển hướng...";
         codeArea.classList.add("success-verified");
-        timerText.textContent = "Trạng thái: Đã hoàn tất xác thực";
+        timerText.textContent = "Trạng thái: Hoàn tất";
         inputField.disabled = true;
+
+        // Chuyển hướng sang trang web tạm thời sau 1.5 giây
+        setTimeout(() => {
+            // Bạn có thể thay đổi đường dẫn "success.html" thành bất kỳ trang web nào bạn muốn
+            window.location.href = "success.html";
+        }, 1500);
     } else {
         alert("Sai mã xác minh! Vui lòng kiểm tra lại.");
     }
