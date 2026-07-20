@@ -67,7 +67,7 @@
             margin-bottom: 20px;
         }
 
-        .copy-btn {
+        .btn {
             background-color: var(--primary-color);
             color: var(--bg-color);
             border: none;
@@ -78,11 +78,20 @@
             cursor: pointer;
             width: 100%;
             transition: 0.2s;
+            margin-top: 10px;
+            text-decoration: none;
+            display: inline-block;
         }
 
-        .copy-btn:hover {
+        .btn:hover {
             opacity: 0.9;
             transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #1f293d;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
         }
     </style>
 </head>
@@ -90,12 +99,13 @@
 
     <div class="container">
         <h2>🎉 VƯỢT LINK THÀNH CÔNG!</h2>
-        <p>Key 20 ký tự độc quyền của bạn (Có hiệu lực trong vòng <strong>7 ngày</strong>):</p>
+        <p>Key 7 ngày của bạn đã sẵn sàng:</p>
         
         <div class="key-box" id="generated-key">Đang tạo key...</div>
         <div class="expiry-text" id="expiry-info">Thời hạn: Đang tính toán...</div>
         
-        <button class="copy-btn" onclick="copyKey()">COPY KEY VÀO BỘ NHỚ</button>
+        <button class="btn" onclick="copyKey()">📋 COPY KEY</button>
+        <button class="btn btn-secondary" onclick="goBackToHub()">🚀 QUAY LẠI HUB ĐỂ NHẬP KEY</button>
     </div>
 
     <script>
@@ -108,32 +118,30 @@
             return result;
         }
 
+        let currentKeyObj = null;
+
         window.onload = function() {
             const keyBox = document.getElementById("generated-key");
             const expiryInfo = document.getElementById("expiry-info");
 
             let savedData = localStorage.getItem("luau_key_data");
-            let keyObj;
-
             const now = new Date().getTime();
-            const sevenDaysMs = 7 * 24 * 60 * 60 * 1000; // 7 ngày tính bằng mili-giây
+            const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
 
             if (savedData) {
-                keyObj = JSON.parse(savedData);
-                // Nếu quá 7 ngày kể từ lúc tạo, cấp key mới
-                if (now > keyObj.expiresAt) {
-                    keyObj = createNewKey(now, sevenDaysMs);
+                currentKeyObj = JSON.parse(savedData);
+                if (now > currentKeyObj.expiresAt) {
+                    currentKeyObj = createNewKey(now, sevenDaysMs);
                 }
             } else {
-                keyObj = createNewKey(now, sevenDaysMs);
+                currentKeyObj = createNewKey(now, sevenDaysMs);
             }
 
-            keyBox.textContent = keyObj.key;
+            keyBox.textContent = currentKeyObj.key;
             
-            // Tính số ngày/giờ còn lại hiển thị cho người dùng biết
-            let timeLeft = keyObj.expiresAt - now;
+            let timeLeft = currentKeyObj.expiresAt - now;
             let daysLeft = Math.ceil(timeLeft / (1000 * 60 * 60 * 24));
-            expiryInfo.textContent = `⏰ Thời hạn sử dụng: Còn lại ${daysLeft} ngày (Hết hạn sau 7 ngày kể từ lúc tạo)`;
+            expiryInfo.textContent = `⏰ Thời hạn sử dụng: Còn lại ${daysLeft} ngày`;
         };
 
         function createNewKey(now, duration) {
@@ -148,12 +156,15 @@
         }
 
         function copyKey() {
-            const keyText = document.getElementById("generated-key").textContent;
-            navigator.clipboard.writeText(keyText).then(() => {
-                alert("📋 Đã copy Key 7 ngày thành công! Đem về dán vào Hub nhé.");
-            }).catch(err => {
-                alert("Lỗi copy: " + err);
+            if(!currentKeyObj) return;
+            navigator.clipboard.writeText(currentKeyObj.key).then(() => {
+                alert("📋 Đã copy Key thành công!");
             });
+        }
+
+        function goBackToHub() {
+            // Tự động chuyển hướng về trang chủ của bro (nhớ thay đổi link index.html nếu cần, hoặc dùng dấu ../ để về thư mục gốc)
+            window.location.href = "index.html"; 
         }
     </script>
 </body>
