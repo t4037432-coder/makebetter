@@ -10,37 +10,32 @@ window.initApp = function() {
         
         let actionButtonHTML = "";
 
-        if (sec.btnAction === "copy") {
+        if (sec.btnAction === "redirect") {
+            // Cả mục 1 và mục 2 đều dùng chung tính năng: Hiện sẵn script, xác minh đúng mã là teleport sang trang tạm thời
             actionButtonHTML = `
-                <button class="click-btn" id="click-btn-${index}" onclick="triggerGetCode(${index})">CLICK HERE (Lấy mã ngẫu nhiên)</button>
+                <button class="click-btn" id="click-btn-${index}" onclick="triggerGetCode(${index})">CLICK HERE (Lấy mã xác minh)</button>
                 
                 <div id="ver-box-${index}" class="verification-box">
                     <div id="code-area-${index}" class="code-display-area">Mã: Đang tạo...</div>
                     <div id="timer-${index}" class="timer-text">Hết hạn sau: 60 giây</div>
                     <div class="verify-input-group">
-                        <input type="text" id="input-code-${index}" placeholder="Nhập lại mã xác minh..." autocomplete="off">
-                        <button class="verify-btn" onclick="verifyUserCode(${index})">XÁC MINH</button>
+                        <input type="text" id="input-code-${index}" placeholder="Nhập mã xác minh..." autocomplete="off">
+                        <button class="verify-btn" onclick="verifyAndRedirect(${index})">XÁC MINH & CHUYỂN WEB</button>
                     </div>
-                </div>
-                
-                <div id="success-script-box-${index}" style="display: none; margin-top: 15px;">
-                    <div style="font-size: 13px; color: var(--primary-color); margin-bottom: 5px; font-weight: bold;">✅ MÃ XÁC MINH HỢP LỆ:</div>
-                    <pre><code id="real-code-${index}">${escapeHtml(sec.codeSnippet)}</code></pre>
-                    <button class="click-btn" style="background: var(--primary-color); color: var(--bg-color);" onclick="copyScriptCode(${index})">COPY SCRIPT VÀO BỘ NHỚ</button>
                 </div>
             `;
         } else {
+            // Mục 3: Vượt link
             actionButtonHTML = `
                 <a href="${sec.buttonLink}" target="_blank" class="click-btn" style="background: var(--primary-color); color: var(--bg-color);">LẤY KEY (2 PHÚT)</a>
             `;
         }
 
+        // Hiển thị trực tiếp code thật của từng mục để người dùng xem, không bị che mờ
         card.innerHTML = `
             <h3>${sec.title}</h3>
             <p>${sec.description}</p>
-            <div id="preview-blur-${index}">
-                <pre><code>-- [NỘI DUNG ĐÃ BỊ KHÓA BẢO MẬT] --\nlocal status = "Nhập mã để mở khóa nội dung này";</code></pre>
-            </div>
+            <pre><code id="real-code-${index}">${escapeHtml(sec.codeSnippet)}</code></pre>
             ${actionButtonHTML}
         `;
         container.appendChild(card);
@@ -93,57 +88,35 @@ window.triggerGetCode = function(index) {
         if (timeLeft <= 0) {
             clearInterval(activeTimers[index]);
             activeCodes[index] = null;
-            codeArea.textContent = "⚠️ Mã đã hết hạn! Vui lòng tải lại trang để lấy mã mới.";
+            codeArea.textContent = "⚠️ Mã đã hết hạn! Vui lòng tải lại trang.";
             timerText.textContent = "Trạng thái: Đã vô hiệu hóa";
             inputField.disabled = true;
         }
     }, 1000);
 };
 
-window.verifyUserCode = function(index) {
+// Hàm xác minh cho cả mục 1 và mục 2: Nhập đúng mã sẽ teleport sang trang web tạm thời (success.html)
+window.verifyAndRedirect = function(index) {
     const inputField = document.getElementById(`input-code-${index}`);
     const codeArea = document.getElementById(`code-area-${index}`);
     const timerText = document.getElementById(`timer-${index}`);
-    const blurPreview = document.getElementById(`preview-blur-${index}`);
-    const successBox = document.getElementById(`success-script-box-${index}`);
-    const verBox = document.getElementById(`ver-box-${index}`);
     
     if (!inputField || !activeCodes[index]) {
-        alert("Mã đã hết hạn hoặc không tồn tại!");
+        alert("Mã đã hết hạn hoặc chưa được tạo!");
         return;
     }
 
-    const userTyped = inputField.value.trim();
-
-    if (userTyped === activeCodes[index]) {
+    if (inputField.value.trim() === activeCodes[index]) {
         clearInterval(activeTimers[index]);
-
-        timerText.textContent = "✨ ĐÃ XÁC THỰC THÀNH CÔNG";
+        timerText.textContent = "✨ XÁC THỰC THÀNH CÔNG - ĐANG CHUYỂN HƯỚNG...";
         timerText.style.color = "var(--primary-color)";
-        timerText.style.fontWeight = "bold";
-        
-        codeArea.textContent = "✅ Chính xác!";
-        codeArea.classList.add("success-verified");
+        codeArea.textContent = "✅ Thành công!";
         inputField.disabled = true;
 
         setTimeout(() => {
-            verBox.style.display = "none";
-            if (blurPreview) blurPreview.style.display = "none";
-            if (successBox) successBox.style.display = "block";
-        }, 400);
-
+            window.location.href = "success.html";
+        }, 1200);
     } else {
         alert("Sai mã xác minh! Vui lòng kiểm tra lại.");
     }
-};
-
-window.copyScriptCode = function(index) {
-    const codeElement = document.getElementById(`real-code-${index}`);
-    if (!codeElement) return;
-
-    navigator.clipboard.writeText(codeElement.textContent).then(() => {
-        alert("📋 Đã copy code thành công!");
-    }).catch(err => {
-        alert("Lỗi copy: " + err);
-    });
 };
