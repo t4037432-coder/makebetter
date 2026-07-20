@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meme Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            text-align: center;
+            margin: 0;
+            padding: 50px;
+        }
+        #auth-box {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        input[type="password"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #444;
+            background: #2a2a2a;
+            color: #fff;
+            border-radius: 5px;
+            outline: none;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #238636;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        button:hover {
+            background-color: #2ea043;
+        }
+        #content {
+            display: none;
+            margin-top: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+        }
+        .card {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+        img {
+            max-width: 300px;
+            border-radius: 5px;
+        }
+        .error {
+            color: #f85149;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Khung xác minh mật khẩu -->
+    <div id="auth-box">
+        <h2>Khu vực hạn chế</h2>
+        <p>Vui lòng nhập mật khẩu để xem nội dung:</p>
+        <input type="password" id="password" placeholder="Nhập mật khẩu...">
+        <button onclick="checkPassword()">Xác nhận</button>
+        <div id="error-msg" class="error"></div>
+    </div>
+
+    <!-- Nội dung trang web sau khi xác minh đúng -->
+    <div id="content">
+        <h1>So sánh Ảnh</h1>
+        <div class="container">
+            <div class="card">
+                <h3>Ảnh Thật</h3>
+                <!-- Thay link ảnh thật của bạn vào đây -->
+                <p>Nội dung ảnh thật...</p>
+            </div>
+            <div class="card">
+                <h3>Ảnh Chế</h3>
+                <!-- Thay link ảnh chế của bạn vào đây -->
+                <p>Nội dung ảnh chế...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function checkPassword() {
+            // Đặt mật khẩu tùy ý của bạn ở đây (Ví dụ: "123456")
+            const correctPassword = "123456"; 
+            const inputVal = document.getElementById("password").value;
+            
+            if (inputVal === correctPassword) {
+                document.getElementById("auth-box").style.display = "none";
+                document.getElementById("content").style.display = "block";
+            } else {
+                document.getElementById("error-msg").innerText = "Sai mật khẩu rồi bro!";
+            }
+        }
+    </script>
+
+</body>
+</html>
