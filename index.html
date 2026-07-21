@@ -47,11 +47,11 @@
         </main>
     </div>
 
-    <!-- Tải cấu hình dữ liệu -->
+    <!-- Tải cấu hình dữ liệu và file bảo mật -->
     <script src="config.js"></script>
     <script src="auth.js"></script>
 
-    <!-- Script điều khiển hiển thị trực tiếp, không sợ lỗi cache -->
+    <!-- Script điều khiển hiển thị giao diện và logic tạo key random -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const container = document.getElementById("card-container");
@@ -65,8 +65,8 @@
 
                 let actionHtml = "";
 
-                // Nếu là Mục 3 (Nhập Key)
                 if (section.btnAction === "key_wall") {
+                    // Mục 3: Nhập Key 7 ngày
                     actionHtml = `
                         <div style="margin-top: 15px; border-top: 1px dashed #1f293d; padding-top: 15px;">
                             <p style="font-size: 13px; color: #ff9f43; margin-bottom: 8px;">🔒 Nhập Key 7 ngày để mở khóa:</p>
@@ -78,10 +78,10 @@
                         </div>
                     `;
                 } else {
-                    // Mục 1 và 2 (Nút bấm thông thường)
+                    // Mục 1 và 2: Bấm vào tự động tạo key random luau-.......... (10 chữ số) rồi chuyển trang
                     actionHtml = `
-                        <button onclick="alert('Chuyển hướng xác minh mã thành công!')" style="margin-top: 15px; width: 100%; padding: 10px; background: #00ffcc; color: #0b0f19; border: none; font-weight: bold; border-radius: 6px; cursor: pointer;">
-                            CLICK HERE (Lấy mã xác minh)
+                        <button onclick="handleRandomKeyRedirect('${section.redirectUrl || "https://google.com"}')" style="margin-top: 15px; width: 100%; padding: 10px; background: #00ffcc; color: #0b0f19; border: none; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s;">
+                            CLICK HERE (Nhận Key & Chuyển trang)
                         </button>
                     `;
                 }
@@ -96,6 +96,25 @@
                 container.appendChild(card);
             });
         });
+
+        // Hàm tạo key random 10 chữ số dạng luau-.......... cho Mục 1 & 2 rồi chuyển trang
+        function handleRandomKeyRedirect(redirectUrl) {
+            const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            let randomCode = "";
+            for (let i = 0; i < 10; i++) {
+                randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            const generatedKey = "luau-" + randomCode;
+
+            // Copy key vào clipboard tự động cho người dùng
+            navigator.clipboard.writeText(generatedKey).then(() => {
+                alert("🎉 Tạo thành công Key: " + generatedKey + "\n📋 Đã tự động copy vào bộ nhớ tạm! Đang chuyển trang...");
+                window.location.href = redirectUrl;
+            }).catch(err => {
+                alert("🎉 Tạo thành công Key: " + generatedKey + "\nĐang chuyển trang...");
+                window.location.href = redirectUrl;
+            });
+        }
 
         // Hàm xử lý xác thực Key cho Mục 3
         function verifyKey(index, redirectUrl) {
