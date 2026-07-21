@@ -3,36 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Web Tạm Thời</title>
-    <style>
-        body {
-            background-color: #05070b;
-            color: #00ffcc;
-            font-family: 'Courier New', Courier, monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
-        }
-        .box {
-            border: 1px dashed #00ffcc;
-            padding: 30px;
-            border-radius: 10px;
-            background: rgba(13, 19, 33, 0.95);
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
-        }
-        h1 { font-size: 22px; margin-bottom: 10px; }
-        p { color: #94a3b8; font-size: 14px; }
-    </style>
+    <title>Thành công - Secure Luau Hub</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="box">
-        <h1>// TRANG WEB TẠM THỜI ĐANG PHÁT TRIỂN</h1>
-        <p>Nội dung đang được cập nhật, vui lòng quay lại sau!</p>
-        <br>
-        <a href="index.html" style="color: #ff007f; text-decoration: none; font-weight: bold;">&larr; Quay lại trang chủ</a>
+    <div id="system-wrapper">
+        <main class="panel" style="max-width: 700px; margin: 40px auto; padding: 30px;">
+            <header class="panel-header" style="margin-bottom: 20px;">
+                <span class="status-dot"></span>
+                <h2>🎉 XÁC THỰC THÀNH CÔNG!</h2>
+            </header>
+            
+            <div class="panel-body" style="text-align: left;">
+                <p style="color: #00ffcc; font-size: 15px; margin-bottom: 15px; font-weight: bold;">
+                    Chúc mừng bro đã vượt qua hệ thống bảo mật! Dưới đây là hướng dẫn chi tiết dành cho người mới:
+                </p>
+
+                <!-- Các bước hướng dẫn -->
+                <div style="background: #060911; padding: 15px; border-radius: 8px; border: 1px solid #1f293d; margin-bottom: 20px; font-size: 14px; color: #94a3b8; line-height: 1.6;">
+                    <b style="color: #fff;">📌 Hướng dẫn sử dụng nhanh:</b><br>
+                    1. Copy đoạn mã Luau ở ô bên dưới.<br>
+                    2. Mở executor Roblox của bro lên (ví dụ: Delta, Arceus X, Fluxus,...).<br>
+                    3. Dán mã vào và bấm <b style="color: #00ffcc;">Execute</b> để chạy script!
+                </div>
+
+                <!-- Ô chứa Script mẫu -->
+                <label style="font-size: 13px; color: #ff9f43; display: block; margin-bottom: 6px;">📋 Đoạn mã Luau của bro:</label>
+                <div style="position: relative; margin-bottom: 20px;">
+                    <pre id="script-code" style="background: #060911; padding: 15px; border-radius: 6px; overflow-x: auto; color: #00ffcc; font-family: monospace; font-size: 13px; border: 1px solid #1f293d;"><code>print("Hello Roblox!")
+local score = 10
+print("Score is: " .. score)</code></pre>
+                    <button onclick="copyScript()" style="margin-top: 10px; width: 100%; padding: 12px; background: #00ffcc; color: #0b0f19; border: none; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s;">
+                        📋 COPY SCRIPT NGAY
+                    </button>
+                </div>
+
+                <!-- Nút quay lại trang chủ -->
+                <div style="text-align: center; border-top: 1px dashed #1f293d; pt: 15px; margin-top: 20px; padding-top: 15px;">
+                    <a href="index.html" style="color: #94a3b8; font-size: 13px; text-decoration: underline;">⬅ Quay lại trang chủ Hub</a>
+                </div>
+            </div>
+        </main>
     </div>
+
+    <!-- Script tính năng bấm nút copy nhanh -->
+    <script>
+        function copyScript() {
+            const codeText = document.getElementById("script-code").innerText;
+            navigator.clipboard.writeText(codeText).then(() => {
+                alert("✅ Đã copy script thành công! Mang vào game paste và chạy thôi!");
+            }).catch(err => {
+                alert("❌ Lỗi khi copy, vui lòng bôi đen và copy thủ công!");
+            });
+        }
+    </script>
 </body>
 </html>
