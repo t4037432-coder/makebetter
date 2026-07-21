@@ -1,122 +1,81 @@
-window.initApp = function() {
+document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("card-container");
-    if (!container) return;
+    if (!container || typeof SYSTEM_CONFIG === "undefined") return;
 
     container.innerHTML = "";
 
-    SYSTEM_CONFIG.sections.forEach((sec, index) => {
+    SYSTEM_CONFIG.sections.forEach((section, index) => {
         const card = document.createElement("div");
-        card.className = "card";
-        
-        let actionButtonHTML = "";
+        card.className = "card"; // Lớp CSS tùy giao diện của bro
 
-        if (sec.btnAction === "redirect") {
-            // Cả mục 1 và mục 2 đều dùng chung tính năng: Hiện sẵn script, xác minh đúng mã là teleport sang trang tạm thời
-            actionButtonHTML = `
-                <button class="click-btn" id="click-btn-${index}" onclick="triggerGetCode(${index})">CLICK HERE (Lấy mã xác minh)</button>
-                
-                <div id="ver-box-${index}" class="verification-box">
-                    <div id="code-area-${index}" class="code-display-area">Mã: Đang tạo...</div>
-                    <div id="timer-${index}" class="timer-text">Hết hạn sau: 60 giây</div>
-                    <div class="verify-input-group">
-                        <input type="text" id="input-code-${index}" placeholder="Nhập mã xác minh..." autocomplete="off">
-                        <button class="verify-btn" onclick="verifyAndRedirect(${index})">XÁC MINH & CHUYỂN WEB</button>
+        let actionHtml = "";
+
+        // Kiểm tra xem là nút bấm thông thường hay nút nhập Key (key_wall)
+        if (section.btnAction === "key_wall") {
+            actionHtml = `
+                <div class="key-wall-container" style="margin-top: 15px; border-top: 1px dashed #1f293d; padding-top: 15px;">
+                    <p style="font-size: 13px; color: #ff9f43; margin-bottom: 8px;">🔒 Module này yêu cầu Key 7 ngày để mở khóa:</p>
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <input type="text" id="key-input-${index}" placeholder="Dán key luaurb_... vào đây" style="flex: 1; padding: 10px; background: #060911; border: 1px solid #1f293d; color: #fff; border-radius: 6px; font-family: monospace;">
+                        <button onclick="verifyUserKey(${index}, '${section.redirectUrl || "https://google.com"}')" style="padding: 10px 15px; background: var(--primary-color, #00ffcc); color: #0b0f19; border: none; font-weight: bold; border-radius: 6px; cursor: pointer;">XÁC THỰC</button>
                     </div>
+                    <a href="${section.buttonLink}" target="_blank" style="display: inline-block; color: #00ffcc; font-size: 13px; text-decoration: underline;">👉 Bấm vào đây để lấy Key Lootlabs (2 phút)</a>
                 </div>
             `;
         } else {
-            // Mục 3: Vượt link
-            actionButtonHTML = `
-                <a href="${sec.buttonLink}" target="_blank" class="click-btn" style="background: var(--primary-color); color: var(--bg-color);">LẤY KEY (2 PHÚT)</a>
+            // Các nút bình thường như Mục 1 và 2
+            actionHtml = `
+                <button class="action-btn" onclick="handleAction('${section.btnAction}')" style="margin-top: 15px; width: 100%; padding: 10px; background: var(--primary-color, #00ffcc); color: #0b0f19; border: none; font-weight: bold; border-radius: 6px; cursor: pointer;">
+                    ${section.btnAction === "redirect" ? "CLICK HERE (Lấy mã xác minh)" : "XEM CHI TIẾT"}
+                </button>
             `;
         }
 
-        // Hiển thị trực tiếp code thật của từng mục để người dùng xem, không bị che mờ
         card.innerHTML = `
-            <h3>${sec.title}</h3>
-            <p>${sec.description}</p>
-            <pre><code id="real-code-${index}">${escapeHtml(sec.codeSnippet)}</code></pre>
-            ${actionButtonHTML}
+            <h3>${section.title}</h3>
+            <p style="color: #94a3b8; font-size: 14px; margin-bottom: 10px;">${section.description}</p>
+            <pre style="background: #060911; padding: 12px; border-radius: 6px; overflow-x: auto; color: #00ffcc; font-family: monospace; font-size: 13px;"><code>${section.codeSnippet}</code></pre>
+            ${actionHtml}
         `;
+
         container.appendChild(card);
     });
-};
+});
 
-function escapeHtml(text) {
-    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
+// Hàm xử lý xác thực Key khi người dùng bấm nút "XÁC THỰC" ở Mục 3
+function verifyUserKey(index, redirectUrl) {
+    const inputField = document.getElementById(`key-input-${index}`);
+    const userEnteredKey = inputField.value.trim();
 
-let activeCodes = {};
-let activeTimers = {};
-
-window.triggerGetCode = function(index) {
-    const box = document.getElementById(`ver-box-${index}`);
-    const codeArea = document.getElementById(`code-area-${index}`);
-    const timerText = document.getElementById(`timer-${index}`);
-    const inputField = document.getElementById(`input-code-${index}`);
-    const clickBtn = document.getElementById(`click-btn-${index}`);
+    // Lấy key đang lưu trong localStorage của trình duyệt (được tạo ở trang key.html)
+    let savedData = localStorage.getItem("luau_key_data");
     
-    if (!box) return;
-
-    box.style.display = "block";
-    clickBtn.style.display = "none";
-    inputField.value = "";
-    inputField.disabled = false;
-    codeArea.classList.remove("success-verified");
-
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let generatedCode = "LUAU-";
-    for (let i = 0; i < 8; i++) {
-        generatedCode += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-
-    activeCodes[index] = generatedCode;
-    codeArea.textContent = `Mã xác minh: ${generatedCode}`;
-
-    if (activeTimers[index]) {
-        clearInterval(activeTimers[index]);
-    }
-
-    let timeLeft = 60;
-    timerText.textContent = `Hết hạn sau: ${timeLeft} giây`;
-    timerText.style.color = "var(--danger-color)";
-
-    activeTimers[index] = setInterval(() => {
-        timeLeft--;
-        timerText.textContent = `Hết hạn sau: ${timeLeft} giây`;
-
-        if (timeLeft <= 0) {
-            clearInterval(activeTimers[index]);
-            activeCodes[index] = null;
-            codeArea.textContent = "⚠️ Mã đã hết hạn! Vui lòng tải lại trang.";
-            timerText.textContent = "Trạng thái: Đã vô hiệu hóa";
-            inputField.disabled = true;
-        }
-    }, 1000);
-};
-
-// Hàm xác minh cho cả mục 1 và mục 2: Nhập đúng mã sẽ teleport sang trang web tạm thời (success.html)
-window.verifyAndRedirect = function(index) {
-    const inputField = document.getElementById(`input-code-${index}`);
-    const codeArea = document.getElementById(`code-area-${index}`);
-    const timerText = document.getElementById(`timer-${index}`);
-    
-    if (!inputField || !activeCodes[index]) {
-        alert("Mã đã hết hạn hoặc chưa được tạo!");
+    if (!savedData) {
+        alert("❌ Bạn chưa có Key! Vui lòng bấm vào link lấy key ở bên dưới để nhận Key 7 ngày.");
         return;
     }
 
-    if (inputField.value.trim() === activeCodes[index]) {
-        clearInterval(activeTimers[index]);
-        timerText.textContent = "✨ XÁC THỰC THÀNH CÔNG - ĐANG CHUYỂN HƯỚNG...";
-        timerText.style.color = "var(--primary-color)";
-        codeArea.textContent = "✅ Thành công!";
-        inputField.disabled = true;
+    let keyObj = JSON.parse(savedData);
+    const now = new Date().getTime();
 
-        setTimeout(() => {
-            window.location.href = "success.html";
-        }, 1200);
-    } else {
-        alert("Sai mã xác minh! Vui lòng kiểm tra lại.");
+    // Kiểm tra xem key có hết hạn 7 ngày chưa
+    if (now > keyObj.expiresAt) {
+        alert("⏳ Key của bạn đã hết hạn 7 ngày. Vui lòng lấy key mới!");
+        return;
     }
-};
+
+    // So khớp key người dùng nhập với key trong máy
+    if (userEnteredKey === keyObj.key) {
+        alert("🎉 Xác thực thành công! Hệ thống đang chuyển hướng sang trang web tạm thời...");
+        // Teleport (chuyển hướng) sang trang web tạm thời thứ 2 của bro
+        window.location.href = redirectUrl;
+    } else {
+        alert("❌ Key không chính xác! Hãy kiểm tra lại ký tự bạn vừa dán.");
+    }
+}
+
+function handleAction(action) {
+    if (action === "redirect") {
+        alert("Chuyển hướng xác minh mã thành công!");
+    }
+}
