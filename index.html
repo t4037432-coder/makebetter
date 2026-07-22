@@ -47,15 +47,42 @@
         </main>
     </div>
 
-    <!-- Tải cấu hình dữ liệu và file bảo mật -->
-    <script src="config.js"></script>
+    <!-- Tải file bảo mật đăng nhập -->
     <script src="auth.js"></script>
 
-    <!-- Script điều khiển hiển thị giao diện -->
+    <!-- Cấu hình và script điều khiển giao diện gộp trực tiếp -->
     <script>
+        const SYSTEM_CONFIG = {
+            accessKey: "123456",
+            sections: [
+                {
+                    title: "1. New (Dành cho người mới)",
+                    description: "Xem script cơ bản bên dưới. Bấm nút để chuyển hướng sang trang success.",
+                    codeSnippet: 'print("Hello Roblox!")\nlocal score = 10\nprint("Score is: " .. score)',
+                    btnAction: "redirect",
+                    redirectUrl: "success.html"
+                },
+                {
+                    title: "2. Know Luau? Join Now (Khối Cầu Vồng Tử Vong)",
+                    description: "Script tạo khối vuông lượn sóng bay sắc cầu vồng, chạm vào là người chơi chết ngay lập tức.",
+                    codeSnippet: 'local part = Instance.new("Part")\npart.Size = Vector3.new(5, 5, 5)\npart.Anchored = true\npart.Parent = workspace\n\n-- Hiệu ứng cầu vồng & chạm vào chết\ntask.spawn(function()\n    while true do\n        part.Color = Color3.fromHSV(tick() % 5 / 5, 1, 1)\n        for _, child in ipairs(workspace:GetChildren()) do\n            if child:IsA("Model") and child:FindFirstChild("Humanoid") then\n                local hrp = child:FindFirstChild("HumanoidRootPart")\n                if hrp and (hrp.Position - part.Position).Magnitude < 4 then\n                    child.Humanoid.Health = 0\n                end\n            end\n        end\n        task.wait(0.1)\n    end\nend)',
+                    btnAction: "redirect",
+                    redirectUrl: "https://www.google.com"
+                },
+                {
+                    title: "3. Năng Cao (Full Module)",
+                    description: "Hệ thống code chuyên sâu. Yêu cầu nhập Key 7 ngày để mở khóa.",
+                    codeSnippet: '-- [HỆ THỐNG ĐÃ MỞ KHÓA THÀNH CÔNG]\nlocal advanced_module = require(script.AdvancedCore);\nadvanced_module:InitializeFullFeatures();\nprint("Luau Full Module Loaded Successfully!");',
+                    btnAction: "key_wall",
+                    buttonLink: "https://lootdest.org/s?sEinb7ej",
+                    redirectUrl: "success.html"
+                }
+            ]
+        };
+
         document.addEventListener("DOMContentLoaded", () => {
             const container = document.getElementById("card-container");
-            if (!container || typeof SYSTEM_CONFIG === "undefined") return;
+            if (!container) return;
 
             container.innerHTML = "";
 
@@ -66,17 +93,18 @@
                 let actionHtml = "";
 
                 if (section.btnAction === "key_wall") {
-                    // Mục 3: Nhập Key 7 ngày (giữ nguyên tính năng lấy key)
+                    // Mục 3: Nhập Key 7 ngày
                     actionHtml = `
                         <div style="margin-top: 15px; border-top: 1px dashed #1f293d; padding-top: 15px;">
                             <p style="font-size: 13px; color: #ff9f43; margin-bottom: 8px;">🔒 Nhập Key 7 ngày để mở khóa:</p>
                             <div style="display: flex; gap: 8px; margin-bottom: 8px;">
                                 <input type="text" id="key-input-${index}" placeholder="Dán key luaurb_..." style="flex: 1; padding: 10px; background: #060911; border: 1px solid #1f293d; color: #fff; border-radius: 6px; font-family: monospace;">
-                                <button onclick="verifyKey(${index}, '${section.redirectUrl || "https://google.com"}')" style="padding: 10px 15px; background: #00ffcc; color: #0b0f19; border: none; font-weight: bold; border-radius: 6px; cursor: pointer;">XÁC THỰC</button>
+                                <button onclick="verifyKey(${index}, '${section.redirectUrl}')" style="padding: 10px 15px; background: #00ffcc; color: #0b0f19; border: none; font-weight: bold; border-radius: 6px; cursor: pointer;">XÁC THỰC</button>
                             </div>
                             <a href="${section.buttonLink}" target="_blank" style="display: inline-block; color: #00ffcc; font-size: 13px; text-decoration: underline;">👉 Bấm vào đây để lấy Key Lootlabs (2 phút)</a>
                         </div>
-             } else {
+                    `;
+                } else {
                     // Mục 1 trỏ về success.html, Mục 2 trỏ sang Google
                     let targetUrl = (index === 0) ? "success.html" : "https://www.google.com";
                     
@@ -86,6 +114,7 @@
                         </button>
                     `;
                 }
+
                 card.innerHTML = `
                     <h3>${section.title}</h3>
                     <p style="color: #94a3b8; font-size: 14px; margin-bottom: 10px;">${section.description}</p>
@@ -113,7 +142,7 @@
             const now = new Date().getTime();
 
             if (now > keyObj.expiresAt) {
-                alert("Key của bạn đã hết hạn 7 ngày. Vuint lòng lấy key mới!");
+                alert("Key của bạn đã hết hạn 7 ngày. Vui lòng lấy key mới!");
                 return;
             }
 
